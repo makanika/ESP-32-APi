@@ -1,7 +1,8 @@
 from django.db import models
-from django.utils import timezone
+# from django.utils import timezone
 
 # Create your models here.
+
 
 class Servo(models.Model):
     degree = models.CharField(max_length=3, default="")

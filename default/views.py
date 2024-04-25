@@ -1,11 +1,12 @@
-from django.shortcuts import render
+# from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from . models import *
-from . serialisers import *
+from . models import Servo
+from . serialisers import ServoSerializer
 
 # Create your views here.
+
 @api_view(["GET"])
 def homeView(request):
     res = {
@@ -18,12 +19,12 @@ def homeView(request):
 def servo(request):
     if request.method == "GET":
         rotations = Servo.objects.all()
-        serialiser = ServoSerialiser(rotations, many=True)
-        return Response(serialiser.data, status=status.HTTP_200_OK)
+        serializer = ServoSerializer(rotations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         data = request.data
-        serialiser = ServoSerialiser(data=data)
-        if serialiser.is_valid():
-            serialiser.save()
-            return Response(serialiser.data, status=status.HTTP_201_CREATED)
-        return Response(serialiser.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = ServoSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

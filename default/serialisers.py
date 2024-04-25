@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from . models import *
+from . models import Servo
 
 
-class ServoSerialiser(serializers.ModelSerializer):
+class ServoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Servo 
         fields = "__all__"
