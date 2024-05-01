@@ -1,0 +1,99 @@
+#include<WiFi.h>
+#include<HTTPClient.h>
+#include<ArduinoJson.h>
+
+// const char *ssid = "747-800";
+// const char *password = "Uganda@256";
+const char *ssid = "Cynaut Technologies";
+const char *password = "hustle256#2";
+
+WiFiClient client;
+String serverName = "http://192.168.100.17:8000";
+
+unsigned long lastTime = 0;
+unsigned long timeeDelay = 5000;
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  initWiFi();
+}
+
+void initWiFi() {
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi...");
+  while (WiFi.status() !=WL_CONNECTED) {
+    Serial.print('.');
+    delay(1000);
+    // ESP.restart
+  }
+  Serial.println(WiFi.localIP());
+}
+
+void postData() {
+  // Make a post request to add servo data
+  HTTPClient http;
+  String serverPath = serverName + "/servo";
+  JsonDocument postData;
+  postData["degree"] = random(0, 180);
+  String postDataStr;
+  serializeJson(postData, postDataStr);
+  serializeJson(postData, Serial);
+
+  // serverPath = serverName + "/servo";
+  http.begin(serverPath.c_str());
+  http.addHeader("Content-Type", "application/json");
+  int httpResponseCode = http.POST(postDataStr);
+
+  if(httpResponseCode > 0) {
+    Serial.print("POST Response code: ");
+    Serial.println(httpResponseCode);
+  } else {
+    Serial.print("POST Error code: ");
+    Serial.println(httpResponseCode);
+  }
+  http.end();
+}
+
+void getData() {
+  if(millis() - lastTime) > timeDelay) {
+    HTTPClient http;
+    String serverPath = serverName + "/servo";
+    // Domain name with URL path or IP address with path
+    http.begin(serverPath.c_str());
+    // Send HTTP GET request
+    int ResponseCode = http.GET();
+
+    if(httpResponseCode > 0) {
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String payload = http.getString();
+      Serial.println(payload);
+
+      // Parse JSON
+      DynamicJsonDocument doc(1024);
+      DeserializationError error = deserializeJson(doc, payload);
+      if (error) {
+        Serial.print("deserializejson() failed: ");
+        Serial.print(error.f_str());
+        return;
+      }
+
+      // Extract data
+      int servoPostion = doc[0]["degree"];
+      Serial.print("Rotating servo to degree");
+      Serial.println(degree);
+    }
+
+
+    }
+  }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+    postData();
+    delay(2000);
+
+}
